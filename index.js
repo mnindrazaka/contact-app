@@ -4,27 +4,7 @@ var input_phone = document.getElementById('input_phone')
 var input_submit = document.getElementById('input_submit')
 input_submit.onclick = handleSubmit
 
-var data = [
-  {
-    name: 'M. Nindra Zaka',
-    phone: '085335473895'
-  },
-  {
-    name: 'Raka Ardianata',
-    phone: '085331247098'
-  },
-  {
-    name: 'Budi',
-    phone: '087564326777'
-  }
-]
-
-function handleSubmit() {
-  data.push({ name: input_name.value, phone: input_phone.value })
-  input_name.value = ''
-  input_phone.value = ''
-  renderContacts()
-}
+var data = []
 
 function renderContacts() {
   contact.innerHTML = ''
@@ -39,4 +19,36 @@ function renderContacts() {
   })
 }
 
-renderContacts()
+function fetchContacts() {
+  var xhttp = new XMLHttpRequest()
+  xhttp.open('GET', 'https://aka-contact-backend.herokuapp.com/contact')
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      data = JSON.parse(xhttp.responseText)
+      renderContacts()
+    }
+  }
+  xhttp.send()
+}
+
+function handleSubmit() {
+  var xhttp = new XMLHttpRequest()
+  xhttp.open('POST', 'https://aka-contact-backend.herokuapp.com/contact')
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      fetchContacts()
+      resetInput()
+    }
+  }
+  xhttp.setRequestHeader('Content-Type', 'application/json')
+  xhttp.send(
+    JSON.stringify({ name: input_name.value, phone: input_phone.value })
+  )
+}
+
+function resetInput() {
+  input_name.value = ''
+  input_phone.value = ''
+}
+
+fetchContacts()
